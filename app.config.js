@@ -53,6 +53,21 @@
           $httpProvider.defaults.useXDomain = true;
           //Set headers
           $httpProvider.defaults.headers.common['Content-Type'] = 'application/json; charset=utf-8';
+          $httpProvider.defaults.headers.common['Access-Control-Allow-Origin']='*';
+          $httpProvider.interceptors.push(function() {
+          return {
+            'request': function(config) {
+              var userProfile = sessionStorage.getItem('user_profile');
+              if (userProfile) {
+                var authKey = JSON.parse(userProfile).base64EncodedAuthenticationKey;
+                if (authKey) {
+                  config.headers['Authorization'] = 'Basic ' + authKey;
+                }
+              }
+              return config;
+            }
+          };
+          });
           // Mifos set Tenant
           $httpProvider.defaults.headers.common['Fineract-Platform-TenantId'] = TENANT_IDENTIFIER;
           $httpProvider.interceptors.push('APIRequestInterceptor');
